@@ -3,7 +3,7 @@ proton是一个将excel导出为配置文件的工具，可以导出为xml、jso
 
 ## 特点
 - python编写可跨平台使用，仅依赖第三方库[xlrd](http://www.lexicon.net/sjmachin/xlrd.html)，[完整代码仅500余行](https://github.com/sy-yanghuan/proton/blob/master/proton.py)。
-- 有特定的规则语法描述excel的格式信息，简洁易懂，灵活强大，[详细说明]()。
+- 有特定的规则语法描述excel的格式信息，简洁易懂，灵活强大，[详细说明](https://github.com/sy-yanghuan/proton/wiki/document_zh)。
 - 可导出excel格式信息供外部程序使用，可用来自动生成读取配置的代码。
 
 ##后端程序（生成自动读取的代码）
