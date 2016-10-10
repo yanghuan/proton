@@ -1,10 +1,19 @@
 #encoding=utf-8
 '''
-Created on 2014年2月26日
+Copyright 2016 - 2019 yanghuan
 
-@author: yanghuan
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 '''
-
 import sys        
 
 if sys.version_info < (3, 0):
@@ -433,13 +442,9 @@ class Exporter:
         
         if schemas and self.context.codegenerator:
             schemasjson = json.dumps(schemas, ensure_ascii = False, indent = True)
-            if self.context.codegenerator.endswith('.json'):
-                with codecs.open(self.context.codegenerator, 'w', 'utf-8') as f:
-                    f.write(schemasjson)
-            else:
-                command = '"' + self.context.codegenerator + ' ' + schemasjson + '"'
-                os.system(command)
-    
+            with codecs.open(self.context.codegenerator, 'w', 'utf-8') as f:
+                f.write(schemasjson)
+                
     def save(self, record):
         if not os.path.isdir(self.context.folder):
             os.makedirs(self.context.folder)
@@ -504,12 +509,11 @@ class Exporter:
         pass
     
 if __name__ == '__main__':
-    
     class Context:
         pass
     
     print('argv:' , sys.argv)
-    opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:')
+    opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
 
     context = Context()
     context.format = 'json'
@@ -530,4 +534,19 @@ if __name__ == '__main__':
             context.extension = v
         elif op == '-c':
             context.codegenerator = v    
+        elif op == '-h':
+            print('''usage python proton.py [-p filelist] [-f outfolder] [-e format]
+Arguments 
+-p      : input excel files, use space to separate 
+-f      : out folder
+-e      : format, json or xml or lua     
+
+Options
+-s      ：sign, controls whether the column is exported, defalut all export
+-t      : suffix, export file suffix
+-c      : a file path, save the excel structure to json, the external program uses this file to automatically generate the read code       
+-h      : print this help message and exit
+
+https://github.com/sy-yanghuan/proton''')
+            sys.exit()    
     exportexcel(context)
