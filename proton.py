@@ -249,7 +249,7 @@ class Exporter:
                     value = str(value)
             elif typename == 'bool':
                 try:
-                    value = int(value)
+                    value = int(float(value))
                     value = False if value == 0 else True 
                 except ValueError:
                     value = value.lower() 
