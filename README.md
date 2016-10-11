@@ -1,4 +1,4 @@
-[English](https://github.com/sy-yanghuan/proton/blob/master/README.md#proton)   [Chinese](https://github.com/sy-yanghuan/proton/blob/master/README.md#proton-1)  
+[English](https://github.com/sy-yanghuan/proton#proton)   [Chinese](https://github.com/sy-yanghuan/proton#proton-1)  
 # proton
 Proton is a excel export configuration file for the tool, you can export to xml, json, lua format, through external expansion can automatically generate the configuration to read the code, simple and flexible easy to use, indeed powerful.
 
