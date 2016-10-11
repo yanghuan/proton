@@ -17,7 +17,7 @@ limitations under the License.
 import sys        
 
 if sys.version_info < (3, 0):
-    print("python version need more than 3.x" )
+    print('python version need more than 3.x')
     sys.exit()
     
 import os
@@ -197,18 +197,16 @@ class Exporter:
         raise ValueError('%s is not a legal type' % type_)
     
     def buildlistexpress(self, parent, type_, name, value, isschema):
-        def getbasename():
-            return type_[:-2]
-        
+        basetype = type_[:-2]        
         list_ = []
         if isschema:
-            self.buildexpress(list_, getbasename(), name, None, isschema)
-            list_ = getscemainfo(list_, value);
+            self.buildexpress(list_, basetype, name, None, isschema)
+            list_ = getscemainfo(list_[0], value)
         else:
             valuelist = value.strip('[]').split(',')
             for v in valuelist:
                 if not v.isspace():
-                    self.buildexpress(list_, getbasename(), name, v)
+                    self.buildexpress(list_, basetype, name, v)
            
         fillvalue(parent, name + 's', list_, isschema)     
         
