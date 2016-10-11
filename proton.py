@@ -177,7 +177,6 @@ class Exporter:
         self.context = context
         self.records = []
         self.constraints = []
-        pass
     
     def gettype(self, type_):
         if type_[-2] == '[' and  type_[-1] == ']':
@@ -306,7 +305,6 @@ class Exporter:
         
         self.checkconstraint()     
         self.saves()                
-        pass
     
     def getconfigsheetfinfo(self, sheet):
         titles = sheet.row_values(0)
@@ -464,7 +462,6 @@ class Exporter:
             with codecs.open(record.exportfile, 'w', 'utf-8') as f:
                 f.write(luastr)
             print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
-        pass
     
     def addrecord(self, path, sheet, exportfile, root, item, obj):
         r = Record(path, sheet, exportfile, root, item, obj)
@@ -504,11 +501,23 @@ class Exporter:
             i = next((i for i in r.obj if i[c.field] == v), False)    
             if not i:
                 raise ValueError('%s(field) %s not found ,%s has a constraint %s error in %d row %d column in %s' % (c.field, v, c.sheetname, c.valueinfo, c.rowindex + 1, c.colindex + 1, c.path))
-        pass
     
 if __name__ == '__main__':
     class Context:
-        pass
+        '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
+        Arguments 
+        -p      : input excel files, use space to separate 
+        -f      : out folder
+        -e      : format, json or xml or lua     
+
+        Options
+        -s      ：sign, controls whether the column is exported, defalut all export
+        -t      : suffix, export file suffix
+        -c      : a file path, save the excel structure to json
+                  the external program uses this file to automatically generate the read code       
+        -h      : print this help message and exit
+        
+        https://github.com/sy-yanghuan/proton'''   
     
     print('argv:' , sys.argv)
     opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
@@ -533,18 +542,6 @@ if __name__ == '__main__':
         elif op == '-c':
             context.codegenerator = v    
         elif op == '-h':
-            print('''usage python proton.py [-p filelist] [-f outfolder] [-e format]
-Arguments 
--p      : input excel files, use space to separate 
--f      : out folder
--e      : format, json or xml or lua     
-
-Options
--s      ：sign, controls whether the column is exported, defalut all export
--t      : suffix, export file suffix
--c      : a file path, save the excel structure to json, the external program uses this file to automatically generate the read code       
--h      : print this help message and exit
-
-https://github.com/sy-yanghuan/proton''')
+            print(Context.__doc__)
             sys.exit()    
     exportexcel(context)
