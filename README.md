@@ -2,7 +2,7 @@
 # proton
 Proton is a excel export configuration file for the tool, you can export to xml, json, lua format, through external expansion can automatically generate the configuration to read the code, simple and flexible easy to use, indeed powerful.
 
-## Good
+## Features
 - Writeing in Python,cross-platform, referenced [xlrd](http://www.lexicon.net/sjmachin/xlrd.html) only, [full code](https://github.com/sy-yanghuan/proton/blob/master/proton.py), just more than 500 lines  
 - Has a specific rule syntax description excel format information, simple and easy to understand, flexible and powerful, [detailed description](https://github.com/sy-yanghuan/proton/wiki/document_en) 
 - Can export excel format information for external use, can be used to automatically generate read configuration code
