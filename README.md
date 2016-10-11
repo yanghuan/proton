@@ -1,14 +1,14 @@
-[English]()   [Chinese]()  
+[English](https://github.com/sy-yanghuan/proton/blob/master/README.md#proton)   [Chinese](https://github.com/sy-yanghuan/proton/blob/master/README.md#proton-1)  
 # proton
 Proton is a excel export configuration file for the tool, you can export to xml, json, lua format, through external expansion can automatically generate the configuration to read the code, simple and flexible easy to use, indeed powerful.
 
 ## Good
 - Writeing in Python,cross-platform, referenced [xlrd](http://www.lexicon.net/sjmachin/xlrd.html) only, [full code](https://github.com/sy-yanghuan/proton/blob/master/proton.py), just more than 500 lines  
-- Has a specific rule syntax description excel format information, simple and easy to understand, flexible and powerful, [detailed description](https://github.com/sy-yanghuan/proton/wiki/document_zh) 
+- Has a specific rule syntax description excel format information, simple and easy to understand, flexible and powerful, [detailed description](https://github.com/sy-yanghuan/proton/wiki/document_en) 
 - Can export excel format information for external use, can be used to automatically generate read configuration code
 
 ## Generates an auto-read code
-Use the "-c" parameter to generate a json file containing excel format information, each language can be automatically generated to achieve this code to read the tool, [the specific format](https://github.com/sy-yanghuan/proton/wiki/scema_zh). Has achieved the C # language tools, other language users, can be realized, welcomed the realization of the code links for the needs of people to use.
+Use the "-c" parameter to generate a json file containing excel format information, each language can be automatically generated to achieve this code to read the tool, [the specific format](https://github.com/sy-yanghuan/proton/wiki/scema_en). Has achieved the C # language tools, other language users, can be realized, welcomed the realization of the code links for the needs of people to use.
 - [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) generates C # code that reads xml, json, protobuf. You can convert xml to protobuf's binary format and generate the corresponding read code (using protobuf-net).
 
 ## Command Line Parameters
@@ -28,8 +28,8 @@ Options
 ```
 
 ## Documentation
-Wiki https://github.com/sy-yanghuan/proton/wiki/document_zh  
-FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_zh
+Wiki https://github.com/sy-yanghuan/proton/wiki/document_en  
+FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_en
 
 ## *License*
 [Apache 2.0 license](LICENSE).
