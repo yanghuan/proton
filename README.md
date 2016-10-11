@@ -26,8 +26,9 @@ Options
           the external program uses this file to automatically generate the read code      
 -h      : print this help message and exit
 ```
-##详细文档
-https://github.com/sy-yanghuan/proton/wiki/document_zh 
+##文档
+格式说明 https://github.com/sy-yanghuan/proton/wiki/document_zh  
+FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_zh
 
 ##*许可证*
 [Apache 2.0 license](LICENSE).
