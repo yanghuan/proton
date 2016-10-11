@@ -9,7 +9,7 @@ proton是一个将excel导出为配置文件的工具，可以导出为xml、jso
 ##后端程序（生成自动读取的代码）
 使用“-c”参数可生成内含excel格式信息的json文件，各个语言可据此实现自动生成读取代码的工具。已经实现了c#语言的工具，其他语言使用者，可自行实现，欢迎提供实现的代码链接，以供需要的同学使用。
 
-- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton)。可生成读取xml、json、protobuf的C#代码。 可将xml转换为protobuf的二进制格式，并生成对应的读取代码（使用protobuf-net）。
+- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) 可生成读取xml、json、protobuf的C#代码。 可将xml转换为protobuf的二进制格式，并生成对应的读取代码（使用protobuf-net）。
 
 ## 命令行参数
 ```cmd
