@@ -152,13 +152,14 @@ class BindType:
         return self.typename == other
     
 class Record:
-    def __init__(self, path, sheet, exportfile, root, item, obj):
+    def __init__(self, path, sheet, exportfile, root, item, obj, exportmark):
         self.path = path 
         self.sheet = sheet 
         self.exportfile = exportfile 
         self.root = root 
         self.item = item
         self.setobj(obj)
+        self.exportmark = exportmark
 
     def setobj(self, obj):    
         self.schema = obj[0] if obj else None
@@ -285,10 +286,10 @@ class Exporter:
                 if exportmark:
                     configtitleinfo = self.getconfigsheetfinfo(sheet)
                     if not configtitleinfo:
-                        root = exportmark + 's' + (self.context.extension if self.context.extension else "")
+                        root = exportmark + 's' + (self.context.extension or '')
                         item = exportmark
                     else:
-                        root = exportmark + (self.context.extension if self.context.extension else "")
+                        root = exportmark + (self.context.extension or '')
                         item = None
                     exportfile = gerexportfilename(root, self.context.format, self.context.folder)
                     self.checksheetname(self.path, sheet.name, root)
@@ -301,7 +302,7 @@ class Exporter:
                             exportobj = self.exportconfigsheet(sheet, configtitleinfo)
                     else:
                         print(exportfile + ' is not change, so skip!')
-                    self.addrecord(self.path, sheet, exportfile, root, item, exportobj)    
+                    self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
         
         self.checkconstraint()     
         self.saves()                
@@ -434,7 +435,7 @@ class Exporter:
                 self.save(r)
                 
                 if self.context.codegenerator:        # has code generator
-                    schemas.append({ 'exportfile' : r.exportfile, 'root' : r.root, 'item' : r.item, 'schema' : r.schema })
+                    schemas.append({ 'exportfile' : r.exportfile, 'root' : r.root, 'item' : r.item or r.exportmark, 'schema' : r.schema })
         
         if schemas and self.context.codegenerator:
             schemasjson = json.dumps(schemas, ensure_ascii = False, indent = True)
@@ -463,8 +464,8 @@ class Exporter:
                 f.write(luastr)
             print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
     
-    def addrecord(self, path, sheet, exportfile, root, item, obj):
-        r = Record(path, sheet, exportfile, root, item, obj)
+    def addrecord(self, path, sheet, exportfile, root, item, obj, exportmark):
+        r = Record(path, sheet, exportfile, root, item, obj, exportmark)
         r.needsave = True if obj else False
         self.records.append(r)
         
