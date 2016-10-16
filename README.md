@@ -9,7 +9,7 @@ Proton is a excel export configuration file for the tool, you can export to xml,
 
 ## Generates an auto-read code
 Use the "-c" parameter to generate a json file containing excel format information, each language can be automatically generated to achieve this code to read the tool, [the specific format](https://github.com/sy-yanghuan/proton/wiki/scema_en). Has achieved the C # language tools, other language users, can be realized, welcomed the realization of the code links for the needs of people to use.
-- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) generates C # code that reads xml, json, protobuf. You can convert xml to protobuf's binary format and generate the corresponding read code (using protobuf-net).
+- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) generates C # code that reads xml, json, protobuf. You can convert xml, json to protobuf's binary format and generate the corresponding read code (using protobuf-net).
 
 ## Command Line Parameters
 ```cmd
@@ -45,7 +45,7 @@ proton是一个将excel导出为配置文件的工具，可以导出为xml、jso
 ##后端程序（生成自动读取的代码）
 使用“-c”参数可生成内含excel格式信息的json文件，各个语言可据此实现自动生成读取代码的工具，[具体格式说明](https://github.com/sy-yanghuan/proton/wiki/scema_zh)。已经实现了C#语言的工具，其他语言使用者，可自行实现，欢迎提供实现的代码链接，以供需要的同学使用。
 
-- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) 可生成读取xml、json、protobuf的C#代码。 可将xml转换为protobuf的二进制格式，并生成对应的读取代码（使用protobuf-net）。
+- [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) 可生成读取xml、json、protobuf的C#代码。 可将xml、json转换为protobuf的二进制格式，并生成对应的读取代码（使用protobuf-net）。
 
 ## 命令行参数
 ```cmd
