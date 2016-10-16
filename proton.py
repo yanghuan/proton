@@ -109,33 +109,41 @@ def savexml(record):
     xmlstr = ElementTree.tostring(book.getroot(), 'utf-8')
     dom = minidom.parseString(xmlstr)
     with codecs.open(record.exportfile, 'w', 'utf-8') as f:
-        dom.writexml(f, '', '\t', '\n', 'utf-8')
+        dom.writexml(f, '', '    ', '\n', 'utf-8')
         
     print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
   
 def tolua(obj, indent = 0):
     def newline(count):
-        return '\n' + '    ' * count
+        return '\n' + '  ' * count
         
     if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
-        yield json.dumps(obj, ensure_ascii = False, indent = True)
+        yield json.dumps(obj, ensure_ascii = False)
     elif isinstance(obj, list) or isinstance(obj, dict):
         indent += 1
         yield '{'
         if isinstance(obj, list):
-            yield newline(indent)
+            isfirst = True
             for i in obj:
+                if isfirst:
+                    isfirst = False
+                else:
+                    yield ','
+                yield newline(indent)
                 for part in tolua(i, indent):
                     yield part
-                yield ', '
         else:
+            isfirst = True
             for k, v in obj.items(): 
+                if isfirst:
+                    isfirst = False
+                else:
+                    yield ',' 
                 yield newline(indent)
                 yield k 
                 yield ' = '
                 for part in tolua(v, indent):
                     yield part
-                yield ',' 
         indent -= 1
         yield newline(indent)
         yield '}'
@@ -438,7 +446,7 @@ class Exporter:
                     schemas.append({ 'exportfile' : r.exportfile, 'root' : r.root, 'item' : r.item or r.exportmark, 'schema' : r.schema })
         
         if schemas and self.context.codegenerator:
-            schemasjson = json.dumps(schemas, ensure_ascii = False, indent = True)
+            schemasjson = json.dumps(schemas, ensure_ascii = False, indent = 2)
             with codecs.open(self.context.codegenerator, 'w', 'utf-8') as f:
                 f.write(schemasjson)
                 
@@ -447,7 +455,7 @@ class Exporter:
             os.makedirs(self.context.folder)
             
         if self.context.format == 'json':
-            jsonstr = json.dumps(record.obj, ensure_ascii = False, indent = True)
+            jsonstr = json.dumps(record.obj, ensure_ascii = False, indent = 2)
             with codecs.open(record.exportfile, 'w', 'utf-8') as f:
                 f.write(jsonstr)
             print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
@@ -459,7 +467,7 @@ class Exporter:
             
         elif self.context.format == 'lua':
             luastr = "".join(tolua(record.obj))
-            luastr = 'return ' + luastr
+            luastr = 'return\n' + luastr
             with codecs.open(record.exportfile, 'w', 'utf-8') as f:
                 f.write(luastr)
             print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
