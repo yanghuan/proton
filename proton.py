@@ -119,35 +119,28 @@ def tolua(obj, indent = 0):
         
     if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
         yield json.dumps(obj, ensure_ascii = False)
-    elif isinstance(obj, list) or isinstance(obj, dict):
+    else:
         indent += 1
         yield '{'
-        if isinstance(obj, list):
-            isfirst = True
-            for i in obj:
-                if isfirst:
-                    isfirst = False
-                else:
-                    yield ','
-                yield newline(indent)
-                for part in tolua(i, indent):
-                    yield part
-        else:
-            isfirst = True
-            for k, v in obj.items(): 
-                if isfirst:
-                    isfirst = False
-                else:
-                    yield ',' 
-                yield newline(indent)
+        islist = isinstance(obj, list)
+        isfirst = True
+        for i in obj:
+            if isfirst:
+                isfirst = False
+            else:
+                yield ','
+            yield newline(indent)
+            if not islist:
+                k = i
+                i = obj[k]
                 yield k 
-                yield ' = '
-                for part in tolua(v, indent):
-                    yield part
+                yield ' = '                
+            for part in tolua(i, indent):
+                yield part
         indent -= 1
         yield newline(indent)
         yield '}'
-                
+    
 def exportexcel(context):
     Exporter(context).export()
     print("export finsish successful!!!")
