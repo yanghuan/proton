@@ -440,6 +440,9 @@ class Exporter:
         
         if schemas and self.context.codegenerator:
             schemasjson = json.dumps(schemas, ensure_ascii = False, indent = 2)
+            dir = os.path.dirname(self.context.codegenerator)
+            if dir and not os.path.isdir(dir):
+                os.makedirs(dir)
             with codecs.open(self.context.codegenerator, 'w', 'utf-8') as f:
                 f.write(schemasjson)
                 
