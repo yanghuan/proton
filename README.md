@@ -26,6 +26,8 @@ Options
           the external program uses this file to automatically generate the read code      
 -h      : print this help message and exit
 ```
+## Example
+[sample directory] (https://github.com/sy-yanghuan/proton/tree/master/sample) is a well configured under the direct use of the Windows example. Already contains a python3 environment, directly run __export.bat to complete the export. Need to add a new Excel file, modify the __export.py related array.
 
 ## Documentation
 Wiki https://github.com/sy-yanghuan/proton/wiki/document_en  
@@ -62,11 +64,12 @@ Options
           the external program uses this file to automatically generate the read code      
 -h      : print this help message and exit
 ```
+## 实例工程
+[sample目录](https://github.com/sy-yanghuan/proton/tree/master/sample)下是一个配置好了的可在windows下直接使用的实例。已经包含了python3环境，直接运行__export.bat即可完成导出。需要添加新的Excel文件，修改__export.py中相关数组，加入即可。
+
 ##文档
 格式说明 https://github.com/sy-yanghuan/proton/wiki/document_zh  
 FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_zh
 
 ##*许可证*
 [Apache 2.0 license](LICENSE).
-
-
