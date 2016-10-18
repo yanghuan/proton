@@ -2,13 +2,13 @@
 
 # Need to export the public configuration file (client, server needs) 需要导出的公共配置文件(客户端,服务器都需要)
 EXPORT_FILES = [
-"英雄配置表.xlsx",
-"坐骑配置表.xlsx",
+"hero.xlsx",
+"mount.xlsx",
 ]
 
 # Additional configuration files that the client needs to export (only the client needs) 客户端额外需要导出的额外配置文件(仅客户端需要)
 EXPORT_CLIENT_ONLY = [
-"文本配置表.xlsx"
+"text.xlsx"
 ]
 
 # Server-side need to export the configuration file (only the server needs) 服务器端额外需要导出的配置文件(仅服务器需要)
