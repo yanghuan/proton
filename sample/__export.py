@@ -6,7 +6,7 @@ EXPORT_FILES = [
 "坐骑配置表.xlsx",
 ]
 
-# Additional configuration files that the client needs to export (only the client needs)客户端额外需要导出的额外配置文件(仅客户端需要)
+# Additional configuration files that the client needs to export (only the client needs) 客户端额外需要导出的额外配置文件(仅客户端需要)
 EXPORT_CLIENT_ONLY = [
 "文本配置表.xlsx"
 ]
