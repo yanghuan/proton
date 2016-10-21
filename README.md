@@ -35,7 +35,7 @@ Wiki https://github.com/sy-yanghuan/proton/wiki/document_en
 FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_en
 
 ## *License*
-[Apache 2.0 license](LICENSE).
+[Apache 2.0 license](https://github.com/sy-yanghuan/proton/blob/master/LICENSE).
 
 _____________________
 # proton
@@ -74,4 +74,4 @@ Options
 FAQ https://github.com/sy-yanghuan/proton/wiki/FAQ_zh
 
 ##*许可证*
-[Apache 2.0 license](LICENSE).
+[Apache 2.0 license](https://github.com/sy-yanghuan/proton/blob/master/LICENSE).
