@@ -12,7 +12,7 @@ Use the "-c" parameter to generate a json file containing excel format informati
 - [CSharpGeneratorForProton](https://github.com/sy-yanghuan/CSharpGeneratorForProton) generates C # code that reads xml, json, protobuf. You can convert xml, json to protobuf's binary format and generate the corresponding read code (using protobuf-net).
 
 ## Example
-[sample directory] (https://github.com/sy-yanghuan/proton/tree/master/sample) is a well configured under the direct use of the Windows example. Already contains a python3 environment, directly run __export.bat to complete the export. Need to add a new Excel file, modify the __export.py related array.
+[sample directory](https://github.com/yanghuan/proton/tree/master/sample) is a well configured under the direct use of the Windows example. Already contains a python3 environment, directly run __export.bat to complete the export. Need to add a new Excel file, modify the __export.py related array.
 
 ## Command Line Parameters
 ```cmd
