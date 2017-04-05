@@ -109,7 +109,7 @@ def savexml(record):
     xmlstr = ElementTree.tostring(book.getroot(), 'utf-8')
     dom = minidom.parseString(xmlstr)
     with codecs.open(record.exportfile, 'w', 'utf-8') as f:
-        dom.writexml(f, '', '    ', '\n', 'utf-8')
+        dom.writexml(f, '', '  ', '\n', 'utf-8')
         
     print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
   
@@ -522,7 +522,7 @@ if __name__ == '__main__':
                   the external program uses this file to automatically generate the read code       
         -h      : print this help message and exit
         
-        https://github.com/sy-yanghuan/proton'''   
+        https://github.com/yanghuan/proton'''   
     
     print('argv:' , sys.argv)
     opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
