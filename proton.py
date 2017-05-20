@@ -109,7 +109,7 @@ def savexml(record):
     xmlstr = ElementTree.tostring(book.getroot(), 'utf-8')
     dom = minidom.parseString(xmlstr)
     with codecs.open(record.exportfile, 'w', 'utf-8') as f:
-        dom.writexml(f, '', '    ', '\n', 'utf-8')
+        dom.writexml(f, '', '  ', '\n', 'utf-8')
         
     print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
   
@@ -170,7 +170,7 @@ class Constraint:
     def __init__(self, mark, filed):
         self.mark = mark
         self.field = filed     
-    
+        
 class Exporter:
     configsheettitles = ('name', 'value', 'type', 'sign', 'description')
     spacemaxrowcount = 3
@@ -281,6 +281,7 @@ class Exporter:
             
             self.checkpath(self.path)
             data = xlrd.open_workbook(self.path)
+            cout = None
             for sheet in data.sheets():
                 exportmark = getexportmark(sheet.name)
                 self.sheetname = sheet.name
@@ -292,19 +293,35 @@ class Exporter:
                     else:
                         root = exportmark + (self.context.extension or '')
                         item = None
-                    exportfile = gerexportfilename(root, self.context.format, self.context.folder)
-                    self.checksheetname(self.path, sheet.name, root)
                     
-                    exportobj = None
-                    if isoutofdate(self.path, exportfile):
+                    if not cout:
+                        exportfile = gerexportfilename(root, self.context.format, self.context.folder)
+                        self.checksheetname(self.path, sheet.name, root)
+                    
+                        exportobj = None
+                        if isoutofdate(self.path, exportfile):
+                            if item:
+                                exportobj = self.exportitemsheet(sheet)
+                            else:
+                                exportobj = self.exportconfigsheet(sheet, configtitleinfo)
+                        else:
+                            print(exportfile + ' is not change, so skip!')
+                        self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
+                        
+                        if not item and sheet.name.endswith('<<'):
+                            if exportobj:
+                                cout = exportobj
+                            else:
+                                break
+                    else:
                         if item:
                             exportobj = self.exportitemsheet(sheet)
+                            cout[1][item + 's'] = exportobj[1]
                         else:
                             exportobj = self.exportconfigsheet(sheet, configtitleinfo)
-                    else:
-                        print(exportfile + ' is not change, so skip!')
-                    self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
-        
+                            cout[1].update(exportobj[1])
+                        cout[0].update(exportobj[0])   
+                           
         self.checkconstraint()     
         self.saves()                
     
@@ -522,7 +539,7 @@ if __name__ == '__main__':
                   the external program uses this file to automatically generate the read code       
         -h      : print this help message and exit
         
-        https://github.com/sy-yanghuan/proton'''   
+        https://github.com/yanghuan/proton'''   
     
     print('argv:' , sys.argv)
     opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
