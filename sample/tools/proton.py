@@ -464,6 +464,9 @@ class Exporter:
         f.write(schemasjson)
                 
   def save(self, record):
+    if not record.obj:
+      return
+  
     if not os.path.isdir(self.context.folder):
       os.makedirs(self.context.folder)
         
