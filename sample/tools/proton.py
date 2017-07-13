@@ -364,39 +364,40 @@ class Exporter:
       raise e
       
     list_ = []
-    
-    try:
-      spacerowcount = 0
-      
-      for self.rowindex in range(4, sheet.nrows):
-        row = sheet.row_values(self.rowindex)
-        item = collections.OrderedDict()
+    hasexport = next((i for i in titleinfos if i[0] and i[1] and i[2]), False)
+    if hasexport:
+      try:
+        spacerowcount = 0
         
-        firsttext = str(row[0]).strip()
-        if not firsttext:
-          spacerowcount += 1
-          if spacerowcount >= self.spacemaxrowcount:      # if space row is than max count, skil follow rows     
-            break
-        
-        if not firsttext or firsttext[0] == '#':    # current line skip
-          continue
-    
-        for self.colindex in range(sheet.ncols):
-          type_ = titleinfos[self.colindex][0]
-          name = titleinfos[self.colindex][1]
-          signmatch = titleinfos[self.colindex][2]
-          value = str(row[self.colindex]).strip()
+        for self.rowindex in range(4, sheet.nrows):
+          row = sheet.row_values(self.rowindex)
+          item = collections.OrderedDict()
           
-          if type_ and name and value:
-            if signmatch:
-              self.buildexpress(item, type_, name, value)
-            spacerowcount = 0    
-              
-        if item:
-          list_.append(item)
-    except Exception as e:        
-        e.args += ('%s has a error in %d row %d column in %s' % (sheet.name, self.rowindex + 1, self.colindex + 1, self.path) , '')
-        raise e
+          firsttext = str(row[0]).strip()
+          if not firsttext:
+            spacerowcount += 1
+            if spacerowcount >= self.spacemaxrowcount:      # if space row is than max count, skil follow rows     
+              break
+          
+          if not firsttext or firsttext[0] == '#':    # current line skip
+            continue
+      
+          for self.colindex in range(sheet.ncols):
+            type_ = titleinfos[self.colindex][0]
+            name = titleinfos[self.colindex][1]
+            signmatch = titleinfos[self.colindex][2]
+            value = str(row[self.colindex]).strip()
+            
+            if type_ and name and value:
+              if signmatch:
+                self.buildexpress(item, type_, name, value)
+              spacerowcount = 0    
+                
+          if item:
+            list_.append(item)
+      except Exception as e:        
+          e.args += ('%s has a error in %d row %d column in %s' % (sheet.name, self.rowindex + 1, self.colindex + 1, self.path) , '')
+          raise e
     
     return (schemaobj, list_)
         
