@@ -35,7 +35,7 @@ def fillvalue(parent, name, value, isschema):
   if isinstance(parent, list):
     parent.append(value) 
   else:
-    if isschema and not re.match('^_|[a-zA-Z]\w+$', name):
+    if isschema and not re.match('^_|[a-zA-Z]\w*$', name):
       raise ValueError('%s is a illegal identifier' % name)
     parent[name] = value
     
