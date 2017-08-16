@@ -273,7 +273,7 @@ class Exporter:
       self.buildbasexpress(parent, type_, name, value, isschema)
 
   def export(self):
-    paths = re.split(r'[,'+ string.whitespace + ']+', context.path.strip())
+    paths = re.split(r'[,;:/\\|'+ string.whitespace + ']+', context.path.strip())
 
     for self.path in paths:
       if not self.path:
@@ -532,7 +532,7 @@ if __name__ == '__main__':
   class Context:
     '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
     Arguments 
-    -p      : input excel files, use space to separate 
+    -p      : input excel files, use , or ; or space to separate 
     -f      : out folder
     -e      : format, json or xml or lua     
 
