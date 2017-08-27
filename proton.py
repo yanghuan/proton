@@ -116,11 +116,10 @@ def savexml(record):
 def newline(count):
   return '\n' + '  ' * count
   
-def tolua(obj, indent = 0):    
+def tolua(obj, indent = 1):    
   if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
     yield json.dumps(obj, ensure_ascii = False)
   else:
-    indent += 1
     yield '{'
     islist = isinstance(obj, list)
     isfirst = True
@@ -135,44 +134,32 @@ def tolua(obj, indent = 0):
         i = obj[k]
         yield k 
         yield ' = '                
-      for part in tolua(i, indent):
+      for part in tolua(i, indent + 1):
         yield part
-    indent -= 1
-    yield newline(indent)
+    yield newline(indent - 1)
     yield '}'
     
-def toycl(obj, indent = 0, root = True):
-  if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
-    yield json.dumps(obj, ensure_ascii = False)
-  else:
-    if not root:
-      indent += 1
-      yield '{'
-    islist = isinstance(obj, list)
-    isfirst = True
-    for i in obj:
-      if root:
-        if isfirst:
-          isfirst = False
-        else:
-          yield '\n'
-      else:    
-        yield newline(indent)
+def toycl(obj, indent = 0):
+  islist = isinstance(obj, list)
+  for i in obj:
+    yield newline(indent)  
+    if not islist:
+      k = i
+      i = obj[k]
+      yield k 
+    if isinstance(i, int) or isinstance(i, float) or isinstance(i, str): 
       if not islist:
-        k = i
-        i = obj[k]
-        yield k 
-        if not isinstance(i, list) and not isinstance(i, dict):
-          yield ' = '
-        else:
-          yield ' '
-      for part in toycl(i, indent, False):
+        yield ' = '
+      yield json.dumps(i, ensure_ascii = False)
+    else:
+      if not islist:
+        yield ' '
+      yield '{'
+      for part in toycl(i, indent + 1):
         yield part
-    if not root:    
-      indent -= 1
-      yield newline(indent)
-      yield '}'
-    
+      yield newline(indent)  
+      yield '}'     
+
 def exportexcel(context):
   Exporter(context).export()
   print("export finsish successful!!!")
@@ -516,13 +503,15 @@ class Exporter:
         
     elif self.context.format == 'lua':
       luastr = "".join(tolua(record.obj))
-      luastr = 'return\n' + luastr
       with codecs.open(record.exportfile, 'w', 'utf-8') as f:
+        f.write('return ')
         f.write(luastr)
       print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
       
     elif self.context.format == 'ycl':
-      yclstr = "".join(toycl(record.obj))
+      g = toycl(record.obj)
+      next(g) # skip first newline
+      yclstr = "".join(g)
       with codecs.open(record.exportfile, 'w', 'utf-8') as f:
         f.write(yclstr)
       print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
@@ -569,19 +558,19 @@ class Exporter:
 if __name__ == '__main__':
   class Context:
     '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
-    Arguments
-    -p      : input excel files, use , or ; or space to separate
+    Arguments 
+    -p      : input excel files, use , or ; or space to separate 
     -f      : out folder
-    -e      : format, json or xml or lua or ycl
+    -e      : format, json or xml or lua     
 
     Options
     -s      ：sign, controls whether the column is exported, defalut all export
     -t      : suffix, export file suffix
     -c      : a file path, save the excel structure to json
-              the external program uses this file to automatically generate the read code  
+              the external program uses this file to automatically generate the read code       
     -h      : print this help message and exit
     
-    https://github.com/yanghuan/proton'''
+    https://github.com/yanghuan/proton'''   
   
   print('argv:' , sys.argv)
   opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
