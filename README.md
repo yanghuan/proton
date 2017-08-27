@@ -18,7 +18,7 @@ Use the "-c" parameter to generate a json file containing excel format informati
 ```cmd
 usage python proton.py [-p filelist] [-f outfolder] [-e format]
 Arguments 
--p      : input excel files, use space to separate 
+-p      : input excel files, use , or ; or space to separate 
 -f      : out folder
 -e      : format, json or xml or lua     
 
@@ -57,7 +57,7 @@ proton是一个将excel导出为配置文件的工具，可以导出为xml、jso
 ```cmd
 usage python proton.py [-p filelist] [-f outfolder] [-e format]
 Arguments 
--p      : input excel files, use space to separate 
+-p      : input excel files, use , or ; or space to separate 
 -f      : out folder
 -e      : format, json or xml or lua     
 
