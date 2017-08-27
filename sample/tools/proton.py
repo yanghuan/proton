@@ -113,10 +113,10 @@ def savexml(record):
       
   print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
   
-def tolua(obj, indent = 0):
-  def newline(count):
-    return '\n' + '  ' * count
-      
+def newline(count):
+  return '\n' + '  ' * count
+  
+def tolua(obj, indent = 0):    
   if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
     yield json.dumps(obj, ensure_ascii = False)
   else:
@@ -140,6 +140,38 @@ def tolua(obj, indent = 0):
     indent -= 1
     yield newline(indent)
     yield '}'
+    
+def toycl(obj, indent = 0, root = True):
+  if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, str):
+    yield json.dumps(obj, ensure_ascii = False)
+  else:
+    if not root:
+      indent += 1
+      yield '{'
+    islist = isinstance(obj, list)
+    isfirst = True
+    for i in obj:
+      if root:
+        if isfirst:
+          isfirst = False
+        else:
+          yield '\n'
+      else:    
+        yield newline(indent)
+      if not islist:
+        k = i
+        i = obj[k]
+        yield k 
+        if not isinstance(i, list) and not isinstance(i, dict):
+          yield ' = '
+        else:
+          yield ' '
+      for part in toycl(i, indent, False):
+        yield part
+    if not root:    
+      indent -= 1
+      yield newline(indent)
+      yield '}'
     
 def exportexcel(context):
   Exporter(context).export()
@@ -488,6 +520,12 @@ class Exporter:
       with codecs.open(record.exportfile, 'w', 'utf-8') as f:
         f.write(luastr)
       print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
+      
+    elif self.context.format == 'ycl':
+      yclstr = "".join(toycl(record.obj))
+      with codecs.open(record.exportfile, 'w', 'utf-8') as f:
+        f.write(yclstr)
+      print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
 
   def addrecord(self, path, sheet, exportfile, root, item, obj, exportmark):
     r = Record(path, sheet, exportfile, root, item, obj, exportmark)
@@ -531,19 +569,19 @@ class Exporter:
 if __name__ == '__main__':
   class Context:
     '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
-    Arguments 
-    -p      : input excel files, use , or ; or space to separate 
+    Arguments
+    -p      : input excel files, use , or ; or space to separate
     -f      : out folder
-    -e      : format, json or xml or lua     
+    -e      : format, json or xml or lua or ycl
 
     Options
     -s      ：sign, controls whether the column is exported, defalut all export
     -t      : suffix, export file suffix
     -c      : a file path, save the excel structure to json
-              the external program uses this file to automatically generate the read code       
+              the external program uses this file to automatically generate the read code  
     -h      : print this help message and exit
     
-    https://github.com/yanghuan/proton'''   
+    https://github.com/yanghuan/proton'''
   
   print('argv:' , sys.argv)
   opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
@@ -560,7 +598,7 @@ if __name__ == '__main__':
     elif op == '-f':
       context.folder = v
     elif op == '-e':
-      context.format = v 
+      context.format = v.lower() 
     elif op == '-s':
       context.sign = v 
     elif op == '-t':
