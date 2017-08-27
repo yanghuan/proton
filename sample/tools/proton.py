@@ -558,19 +558,19 @@ class Exporter:
 if __name__ == '__main__':
   class Context:
     '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
-    Arguments 
-    -p      : input excel files, use , or ; or space to separate 
+    Arguments
+    -p      : input excel files, use , or ; or space to separate
     -f      : out folder
-    -e      : format, json or xml or lua     
+    -e      : format, json or xml or lua or ycl
 
     Options
     -s      ：sign, controls whether the column is exported, defalut all export
     -t      : suffix, export file suffix
     -c      : a file path, save the excel structure to json
-              the external program uses this file to automatically generate the read code       
+              the external program uses this file to automatically generate the read code
     -h      : print this help message and exit
     
-    https://github.com/yanghuan/proton'''   
+    https://github.com/yanghuan/proton'''
   
   print('argv:' , sys.argv)
   opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
