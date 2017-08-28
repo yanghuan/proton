@@ -469,7 +469,7 @@ class Exporter:
   def saves(self):
     schemas = []
     for r in self.records:
-        if r.needsave:
+        if r.obj:
           self.save(r)
           
           if self.context.codegenerator:        # has code generator
@@ -518,7 +518,6 @@ class Exporter:
 
   def addrecord(self, path, sheet, exportfile, root, item, obj, exportmark):
     r = Record(path, sheet, exportfile, root, item, obj, exportmark)
-    r.needsave = True if obj else False
     self.records.append(r)
       
   def checksheetname(self, path, sheetname, root):
