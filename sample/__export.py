@@ -21,6 +21,7 @@ import os
 import platform
 import traceback
 import shutil
+import sys
 
 exportscript = 'tools/proton.py'     
 pythonpath = 'tools\Python33\python.exe ' if platform.system() == 'Windows' else 'python '
@@ -56,25 +57,22 @@ def exportserver():
 def exportclient():
     export(EXPORT_FILES + EXPORT_CLIENT_ONLY, 'lua', 'client', 'config_client', 'Template', None)
     
-if __name__ == '__main__':
+    
+def main():
     try:
         exportserver()
         exportclient()
-        
         print("all operation finish successful")
+        return 0
     except ExportError as e:
         print(e)
+        return 1
     except Exception as e:
         traceback.print_exc()
+        return 1
     finally:    
         print("please return key to exit")
         input()
     
-    
-
-
-    
-
-
-
-
+if __name__ == '__main__':
+    sys.exit(main())
