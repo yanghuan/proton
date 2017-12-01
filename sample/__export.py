@@ -21,6 +21,7 @@ import os
 import platform
 import traceback
 import shutil
+import sys
 
 exportscript = 'tools/proton.py'     
 pythonpath = 'tools\Python33\python.exe ' if platform.system() == 'Windows' else 'python '
@@ -64,8 +65,10 @@ if __name__ == '__main__':
         print("all operation finish successful")
     except ExportError as e:
         print(e)
+        sys.exit(1)
     except Exception as e:
         traceback.print_exc()
+        sys.exit(1)
     finally:    
         print("please return key to exit")
         input()
