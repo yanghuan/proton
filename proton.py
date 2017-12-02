@@ -502,8 +502,11 @@ class Exporter:
       savexml(record) 
         
     elif self.context.format == 'lua':
+      schemasjson = json.dumps(record.schema, ensure_ascii = False, indent = 2)
+      comments_luastr = "--[[\n" + schemasjson + "\n--]]\n\n"
       luastr = "".join(tolua(record.obj))
       with codecs.open(record.exportfile, 'w', 'utf-8') as f:
+        f.write(comments_luastr)
         f.write('return ')
         f.write(luastr)
       print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
