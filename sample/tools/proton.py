@@ -400,17 +400,30 @@ class Exporter:
           
           if not firsttext or firsttext[0] == '#':    # current line skip
             continue
-      
+             
+          skiptokenindex = None   
+          if firsttext[0] == '!':
+            nextpos = firsttext.find('!', 1)
+            if nextpos >= 2:
+              signtoken = firsttext[1: nextpos]
+              if issignmatch(self.context.sign, signtoken.strip()):
+                continue
+              else:
+                skiptokenindex = len(signtoken) + 2
+                 
           for self.colindex in range(sheet.ncols):
-            type_ = titleinfos[self.colindex][0]
-            name = titleinfos[self.colindex][1]
             signmatch = titleinfos[self.colindex][2]
-            value = str(row[self.colindex]).strip()
+            if signmatch:
+              type_ = titleinfos[self.colindex][0]
+              name = titleinfos[self.colindex][1]
+              value = str(row[self.colindex]).strip()
             
-            if type_ and name and value:
-              if signmatch:
-                self.buildexpress(item, type_, name, value)
-              spacerowcount = 0    
+              if skiptokenindex and self.colindex == 0:
+                value = value[skiptokenindex:].strip()
+            
+              if type_ and name and value:
+                self.buildexpress(item, type_, name, value)  
+            spacerowcount = 0
                 
           if item:
             list_.append(item)
