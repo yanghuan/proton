@@ -225,8 +225,7 @@ class Exporter:
     else:
       valuelist = value.strip('[]').split(',')
       for v in valuelist:
-        if not v.isspace():
-          self.buildexpress(list_, basetype, name, v)
+        self.buildexpress(list_, basetype, name, v)
        
     fillvalue(parent, name + 's', list_, isschema)     
       
@@ -253,6 +252,9 @@ class Exporter:
     if isschema:
       value = getscemainfo(typename, value)
     else:
+      if v.isspace() and typename != 'string':
+        return
+        
       if typename == 'int':
         value = int(float(value))
       elif typename == 'double':
@@ -416,11 +418,10 @@ class Exporter:
             if signmatch:
               type_ = titleinfos[self.colindex][0]
               name = titleinfos[self.colindex][1]
-              value = str(row[self.colindex]).strip()
-            
+              value = str(row[self.colindex])
               if skiptokenindex and self.colindex == 0:
-                value = value[skiptokenindex:].strip()
-            
+                value = value.lstrip()[skiptokenindex:]
+                
               if type_ and name and value:
                 self.buildexpress(item, type_, name, value)  
             spacerowcount = 0
@@ -450,10 +451,10 @@ class Exporter:
         row = sheet.row_values(self.rowindex) 
     
         name = str(row[nameindex]).strip()
-        value = str(row[valueindex]).strip()
+        value = str(row[valueindex])
         type_ = str(row[typeindex]).strip()
         description = str(row[descriptionindex]).strip()
-    
+        
         if signindex > 0:
           sign = str(row[signindex]).strip()
           if not issignmatch(self.context.sign, sign):
