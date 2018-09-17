@@ -66,13 +66,14 @@ def main():
         return 0
     except ExportError as e:
         print(e)
+        print("has error, see logs, please return key to exit")
+        input()
         return 1
     except Exception as e:
         traceback.print_exc()
-        return 1
-    finally:    
-        print("please return key to exit")
+        print("has error, see logs, please return key to exit")
         input()
+        return 1
     
 if __name__ == '__main__':
     sys.exit(main())
