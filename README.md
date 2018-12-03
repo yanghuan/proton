@@ -3,7 +3,7 @@
 Proton is a excel export configuration file for the tool, you can export to xml, json, lua format, through external expansion can automatically generate the configuration to read the code, simple and flexible easy to use, indeed powerful.
 
 ## Features
-- Writeing in Python,cross-platform, referenced [xlrd](http://www.lexicon.net/sjmachin/xlrd.html) only, [full code](https://github.com/sy-yanghuan/proton/blob/master/proton.py), just more than 500 lines  
+- Writeing in Python,cross-platform, referenced [xlrd](http://www.lexicon.net/sjmachin/xlrd.html) only, [full code](https://github.com/sy-yanghuan/proton/blob/master/proton.py), just more than 600 lines  
 - Has a specific rule syntax description excel format information, simple and easy to understand, flexible and powerful, [detailed description](https://github.com/sy-yanghuan/proton/wiki/document_en) 
 - Can export excel format information for external use, can be used to automatically generate read configuration code
 
@@ -41,7 +41,7 @@ _____________________
 # proton
 proton是一个将excel导出为配置文件的工具，可以导出为xml、json、lua格式，通过外部扩展可支持自动生成读取配置的代码，简单灵活易于使用，确不失强大。
 ## 特点
-- python编写可跨平台使用，仅依赖第三方库[xlrd](http://www.lexicon.net/sjmachin/xlrd.html)，[完整代码仅500余行](https://github.com/sy-yanghuan/proton/blob/master/proton.py)。
+- python编写可跨平台使用，仅依赖第三方库[xlrd](http://www.lexicon.net/sjmachin/xlrd.html)，[完整代码仅600余行](https://github.com/sy-yanghuan/proton/blob/master/proton.py)。
 - 有特定的规则语法描述excel的格式信息，简洁易懂，灵活强大，[详细说明](https://github.com/sy-yanghuan/proton/wiki/document_zh)。
 - 可导出excel格式信息供外部程序使用，可用来自动生成读取配置的代码。
 

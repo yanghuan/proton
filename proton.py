@@ -18,7 +18,7 @@ import sys
 
 if sys.version_info < (3, 0):
   print('python version need more than 3.x')
-  sys.exit()
+  sys.exit(1)
     
 import os
 import string
@@ -589,6 +589,8 @@ if __name__ == '__main__':
   opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
 
   context = Context()
+  context.path = None
+  context.folder = '.'
   context.format = 'json'
   context.sign = None
   context.extension = None
@@ -609,5 +611,10 @@ if __name__ == '__main__':
       context.codegenerator = v    
     elif op == '-h':
       print(Context.__doc__)
-      sys.exit()    
+      sys.exit()
+      
+  if not context.path:
+    print(Context.__doc__)
+    sys.exit(2)
+    
   exportexcel(context)
