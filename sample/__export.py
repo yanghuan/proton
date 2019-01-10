@@ -24,7 +24,7 @@ import shutil
 import sys
 
 exportscript = 'tools/proton.py'     
-pythonpath = 'tools\Python33\python.exe ' if platform.system() == 'Windows' else 'python '
+pythonpath = 'tools\\py37\\py37.exe ' if platform.system() == 'Windows' else 'python '
 
 class ExportError(Exception):
     pass
@@ -51,12 +51,11 @@ def codegenerator(schema, outfolder, namespace, suffix):
             raise ExportError('codegenerator fail, please see print')
         
 def exportserver():
-    export(EXPORT_FILES + EXPORT_SERVER_ONLY, 'xml', 'server', 'config_server', 'Config', 'schemaserver.json')
+    export(EXPORT_FILES + EXPORT_SERVER_ONLY, 'json', 'server', 'config_server', 'Config', 'schemaserver.json')
     codegenerator('schemaserver.json', 'config_server/ConfigGenerator/Template', 'Ice.Project.Config', 'Template') 
     
 def exportclient():
     export(EXPORT_FILES + EXPORT_CLIENT_ONLY, 'lua', 'client', 'config_client', 'Template', None)
-    
     
 def main():
     try:
