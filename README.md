@@ -73,5 +73,10 @@ Options
 格式说明 https://github.com/yanghuan/proton/wiki/document_zh  
 FAQ https://github.com/yanghuan/proton/wiki/FAQ_zh
 
+## 交流讨论
+- [常见问题](https://github.com/yanghuan/proton/wiki/FAQ_zh)
+- 邮箱：sy.yanghuan@gmail.com
+- QQ群：715350749
+
 ## *许可证*
 [Apache 2.0 license](https://github.com/yanghuan/proton/blob/master/LICENSE).
