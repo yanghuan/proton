@@ -1,4 +1,5 @@
 # pyexe.exe
+https://github.com/manthey/pyexe
 
 [![Build status](https://ci.appveyor.com/api/projects/status/n18f0997k18x87lw/branch/master?svg=true)](https://ci.appveyor.com/project/manthey/pyexe/branch/master)
 
