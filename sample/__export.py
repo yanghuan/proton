@@ -27,52 +27,52 @@ exportscript = 'tools/proton.py'
 pythonpath = 'tools\\py37\\py37.exe ' if platform.system() == 'Windows' else 'python '
 
 class ExportError(Exception):
-    pass
+  pass
 
 def export(filelist, format, sign, outfolder, suffix, schema):
-    cmd = r' -p "' + ' '.join(filelist) + '" -f ' + outfolder + ' -e ' + format + ' -s ' + sign
-    if suffix:
-        cmd += ' -t ' + suffix
-    if schema:
-        cmd += ' -c ' + schema
-    cmd = pythonpath + exportscript + cmd
-    code = os.system(cmd)
-    if code != 0:
-        raise ExportError('export excel fail, please see print')
+  cmd = r' -p "' + ' '.join(filelist) + '" -f ' + outfolder + ' -e ' + format + ' -s ' + sign
+  if suffix:
+    cmd += ' -t ' + suffix
+  if schema:
+    cmd += ' -c ' + schema
+  cmd = pythonpath + exportscript + cmd
+  code = os.system(cmd)
+  if code != 0:
+    raise ExportError('export excel fail, please see print')
 
 def codegenerator(schema, outfolder, namespace, suffix):
-    if os.path.exists(schema):
-        cmd = 'tools\CSharpGeneratorForProton\CSharpGeneratorForProton.exe ' + '-n ' + namespace + ' -f ' + outfolder + ' -p ' + schema
-        if suffix:
-            cmd += ' -t ' + suffix 
-        code = os.system(cmd)
-        os.remove(schema)      
-        if code != 0:
-            raise ExportError('codegenerator fail, please see print')
+  if os.path.exists(schema):
+    cmd = 'tools\CSharpGeneratorForProton\CSharpGeneratorForProton.exe ' + '-n ' + namespace + ' -f ' + outfolder + ' -p ' + schema
+    if suffix:
+      cmd += ' -t ' + suffix 
+    code = os.system(cmd)
+    os.remove(schema)      
+    if code != 0:
+      raise ExportError('codegenerator fail, please see print')
         
 def exportserver():
-    export(EXPORT_FILES + EXPORT_SERVER_ONLY, 'json', 'server', 'config_server', 'Config', 'schemaserver.json')
-    codegenerator('schemaserver.json', 'config_server/ConfigGenerator/Template', 'Ice.Project.Config', 'Template') 
+  export(EXPORT_FILES + EXPORT_SERVER_ONLY, 'json', 'server', 'config_server', 'Config', 'schemaserver.json')
+  codegenerator('schemaserver.json', 'config_server/ConfigGenerator/Template', 'Ice.Project.Config', 'Template') 
     
 def exportclient():
-    export(EXPORT_FILES + EXPORT_CLIENT_ONLY, 'lua', 'client', 'config_client', 'Template', None)
+  export(EXPORT_FILES + EXPORT_CLIENT_ONLY, 'lua', 'client', 'config_client', 'Template', None)
     
 def main():
-    try:
-        exportserver()
-        exportclient()
-        print("all operation finish successful")
-        return 0
-    except ExportError as e:
-        print(e)
-        print("has error, see logs, please return key to exit")
-        input()
-        return 1
-    except Exception as e:
-        traceback.print_exc()
-        print("has error, see logs, please return key to exit")
-        input()
-        return 1
+  try:
+    exportserver()
+    exportclient()
+    print("all operation finish successful")
+    return 0
+  except ExportError as e:
+    print(e)
+    print("has error, see logs, please return key to exit")
+    input()
+    return 1
+  except Exception as e:
+    traceback.print_exc()
+    print("has error, see logs, please return key to exit")
+    input()
+    return 1
     
 if __name__ == '__main__':
     sys.exit(main())
