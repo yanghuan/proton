@@ -337,10 +337,14 @@ class Exporter:
           else:
             if item:
               exportobj = self.exportitemsheet(sheet)
-              cout[1][item + 's'] = exportobj[1]
+              obj = exportobj[1]
+              if obj:
+                cout[1][item + 's'] = obj
             else:
               exportobj = self.exportconfigsheet(sheet, configtitleinfo)
-              cout[1].update(exportobj[1])
+              obj = exportobj[1]
+              if obj:
+                cout[1].update(obj)
             cout[0].update(exportobj[0])   
                        
     self.checkconstraint()     
