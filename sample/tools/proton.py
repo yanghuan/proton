@@ -292,6 +292,9 @@ class Exporter:
       self.buildobjexpress(parent, type_, name, value, isschema)
     else:
       self.buildbasexpress(parent, type_, name, value, isschema)
+      
+  def getrootname(self, exportmark, isitem):
+    return exportmark + 's' + (self.context.extension or '') if isitem else exportmark + (self.context.extension or '')
 
   def export(self):
     paths = re.split(r'[,;:/\\|'+ string.whitespace + ']+', context.path.strip())
@@ -307,12 +310,13 @@ class Exporter:
         exportmark = getexportmark(sheet.name)
         self.sheetname = sheet.name
         if exportmark:
+          coutmark = sheet.name.endswith('<<')
           configtitleinfo = self.getconfigsheetfinfo(sheet)
           if not configtitleinfo:
-            root = exportmark + 's' + (self.context.extension or '')
+            root = self.getrootname(exportmark, not coutmark)
             item = exportmark
           else:
-            root = exportmark + (self.context.extension or '')
+            root = self.getrootname(exportmark, False)
             item = None
           
           if not cout:
@@ -327,27 +331,35 @@ class Exporter:
                 exportobj = self.exportconfigsheet(sheet, configtitleinfo)
             else:
               print(exportfile + ' is not change, so skip!')
-            self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
-            
-            if not item and sheet.name.endswith('<<'):
-              if exportobj:
+
+            if coutmark:
+              if not item:
                 cout = exportobj
               else:
-                break
+                cout = (collections.OrderedDict(), collections.OrderedDict())
+                cout[0][item + 's'] = [[exportobj[0]]]
+                item = None
+                exportobj = cout
+                obj = exportobj[1]
+                if obj:
+                  cout[1][item + 's'] = obj
+                  
+            self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
           else:
             if item:
               exportobj = self.exportitemsheet(sheet)
+              cout[0][item + 's'] = [[exportobj[0]]]
               obj = exportobj[1]
               if obj:
                 cout[1][item + 's'] = obj
             else:
               exportobj = self.exportconfigsheet(sheet, configtitleinfo)
+              cout[0].update(exportobj[0])   
               obj = exportobj[1]
               if obj:
                 cout[1].update(obj)
-            cout[0].update(exportobj[0])   
-                       
-    self.checkconstraint()     
+                
+    self.checkconstraint()
     self.saves()                
     
   def getconfigsheetfinfo(self, sheet):
