@@ -30,7 +30,7 @@ class ExportError(Exception):
   pass
 
 def export(filelist, format, sign, outfolder, suffix, schema):
-  cmd = r' -p "' + ' '.join(filelist) + '" -f ' + outfolder + ' -e ' + format + ' -s ' + sign
+  cmd = r' -p "' + ','.join(filelist) + '" -f ' + outfolder + ' -e ' + format + ' -s ' + sign
   if suffix:
     cmd += ' -t ' + suffix
   if schema:

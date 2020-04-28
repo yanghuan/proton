@@ -297,7 +297,7 @@ class Exporter:
     return exportmark + 's' + (self.context.extension or '') if isitem else exportmark + (self.context.extension or '')
 
   def export(self):
-    paths = re.split(r'[,;:/\\|'+ string.whitespace + ']+', context.path.strip())
+    paths = re.split(r'[,;|]+', context.path.strip())
 
     for self.path in paths:
       if not self.path:
