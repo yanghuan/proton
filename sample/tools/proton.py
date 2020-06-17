@@ -51,7 +51,7 @@ def getscemainfo(typename, description):
   return [typename, description] if description else [typename]
         
 def getexportmark(sheetName):
-  p = re.search('\|[' + string.whitespace + ']*(_|[a-zA-Z]\w+)', sheetName)
+   p = re.search('\|[' + string.whitespace + ']*(_|[a-zA-Z]\w+)', sheetName)
   return p.group(1) if p else False
 
 def issignmatch(signarg, sign):
@@ -324,12 +324,14 @@ class Exporter:
             self.checksheetname(self.path, sheet.name, root)
         
             exportobj = None
+            nochanged = False
             if isoutofdate(self.path, exportfile):
               if item:
                 exportobj = self.exportitemsheet(sheet)
               else:
                 exportobj = self.exportconfigsheet(sheet, configtitleinfo)
             else:
+              nochanged = True
               print(exportfile + ' is not change, so skip!')
 
             if coutmark:
@@ -344,7 +346,9 @@ class Exporter:
                 if obj:
                   cout[1][item + 's'] = obj
                   
-            self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
+            self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)
+            if coutmark and nochanged:
+              break
           else:
             if item:
               exportobj = self.exportitemsheet(sheet)
