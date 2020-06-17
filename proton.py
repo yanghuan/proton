@@ -51,7 +51,7 @@ def getscemainfo(typename, description):
   return [typename, description] if description else [typename]
         
 def getexportmark(sheetName):
-    p = re.search('\|[' + string.whitespace + ']*(_|[a-zA-Z]\w+)', sheetName)
+  p = re.search('\|[' + string.whitespace + ']*(_|[a-zA-Z]\w+)', sheetName)
   return p.group(1) if p else False
 
 def issignmatch(signarg, sign):
