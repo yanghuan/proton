@@ -223,7 +223,12 @@ class Exporter:
       self.buildexpress(list_, basetype, name, None, isschema)
       list_ = getscemainfo(list_[0], value)
     else:
-      valuelist = value.strip('[]').split(',')
+      value = value.strip('[]')
+      if basetype == 'string' and '\,' in value:
+        valuelist = value.replace('\,', '\0').split(',')
+        valuelist = [s.replace('\0', ',') for s in valuelist]
+      else:
+        valuelist = value.split(',')
       for v in valuelist:
         self.buildexpress(list_, basetype, name, v)
        

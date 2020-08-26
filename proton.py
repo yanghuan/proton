@@ -217,17 +217,22 @@ class Exporter:
     raise ValueError('%s is not a legal type' % type_)
     
   def buildlistexpress(self, parent, type_, name, value, isschema):
-    basetype = type_[:-2]        
+    basetype = type_[:-2]
     list_ = []
     if isschema:
       self.buildexpress(list_, basetype, name, None, isschema)
       list_ = getscemainfo(list_[0], value)
     else:
-      valuelist = value.strip('[]').split(',')
+      value = value.strip('[]')
+      if basetype == 'string' and '\,' in value:
+        valuelist = value.replace('\,', '\0').split(',')
+        valuelist = [s.replace('\0', ',') for s in valuelist]
+      else:
+        valuelist = value.split(',')
       for v in valuelist:
         self.buildexpress(list_, basetype, name, v)
        
-    fillvalue(parent, name + 's', list_, isschema)     
+    fillvalue(parent, name + 's', list_, isschema)
       
   def buildobjexpress(self, parent, type_, name, value, isschema):
     obj = collections.OrderedDict()
