@@ -42,7 +42,7 @@ def fillvalue(parent, name, value, isschema):
 def getindex(infos, name):
   for index, item in enumerate(infos):
     if item == name:
-      return index;
+      return index
   return -1
 
 def getscemainfo(typename, description):
@@ -68,7 +68,13 @@ def gerexportfilename(root, format_, folder):
 
 def splitspace(s):
   return re.split(r'[' + string.whitespace + ']+', s.strip())
-
+  
+def checkstringescape(t, v):
+  return v if not v or not 'string' in t else v.replace('\,', '\0').replace('\:', '\a')
+  
+def stringescape(s):
+  return s.replace('\0', ',').replace('\a', ':')
+  
 def buildbasexml(parent, name, value):
   value = str(value)
   if parent.tag == name + 's':
@@ -76,7 +82,7 @@ def buildbasexml(parent, name, value):
     element.text = value
     parent.append(element)
   else:
-    parent.set(name, value)    
+    parent.set(name, value)
             
 def buildlistxml(parent, name, list_):
   element = ElementTree.Element(name)
@@ -223,12 +229,7 @@ class Exporter:
       self.buildexpress(list_, basetype, name, None, isschema)
       list_ = getscemainfo(list_[0], value)
     else:
-      value = value.strip('[]')
-      if basetype == 'string' and '\,' in value:
-        valuelist = value.replace('\,', '\0').split(',')
-        valuelist = [s.replace('\0', ',') for s in valuelist]
-      else:
-        valuelist = value.split(',')
+      valuelist = value.strip('[]').split(',')
       for v in valuelist:
         self.buildexpress(list_, basetype, name, v)
        
@@ -269,9 +270,9 @@ class Exporter:
           try:
             value = str(int(float(value)))
           except ValueError:
-            value = str(value)
+            value = stringescape(str(value))
         else:            
-          value = str(value)
+          value = stringescape(str(value))
       elif typename == 'bool':
         try:
           value = int(float(value))
@@ -448,7 +449,7 @@ class Exporter:
                 value = value.lstrip()[skiptokenindex:]
                 
               if type_ and name and value:
-                self.buildexpress(item, type_, name, value)  
+                self.buildexpress(item, type_, name, checkstringescape(type_, value))  
             spacerowcount = 0
                 
           if item:
@@ -496,7 +497,7 @@ class Exporter:
             if self.context.codegenerator:
               self.buildexpress(schemaobj, type_, name, description, True)
             if value:    
-              self.buildexpress(obj, type_, name, value)
+              self.buildexpress(obj, type_, name, checkstringescape(type_, value))
           spacerowcount = 0    
               
     except Exception as e:
