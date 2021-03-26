@@ -70,7 +70,7 @@ def splitspace(s):
   return re.split(r'[' + string.whitespace + ']+', s.strip())
   
 def checkstringescape(t, v):
-  return v if not v or not 'string' in t else v.replace('\,', '\0').replace('\:', '\a')
+  return v if not v or not 'string' in t else v.replace('\\n', '\n').replace('\,', '\0').replace('\:', '\a')
   
 def stringescape(s):
   return s.replace('\0', ',').replace('\a', ':')
