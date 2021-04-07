@@ -23,7 +23,7 @@ import traceback
 import shutil
 import sys
 
-exportscript = 'tools/proton.py'     
+exportscript = '../proton.py'     
 pythonpath = 'tools\\py37\\py37.exe ' if platform.system() == 'Windows' else 'python '
 
 class ExportError(Exception):

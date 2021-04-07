@@ -69,12 +69,6 @@ def gerexportfilename(root, format_, folder):
 def splitspace(s):
   return re.split(r'[' + string.whitespace + ']+', s.strip())
   
-def checkstringescape(t, v):
-  return v if not v or not 'string' in t else v.replace('\\n', '\n').replace('\,', '\0').replace('\:', '\a')
-  
-def stringescape(s):
-  return s.replace('\0', ',').replace('\a', ':')
-  
 def buildbasexml(parent, name, value):
   value = str(value)
   if parent.tag == name + 's':
@@ -204,6 +198,12 @@ class Exporter:
     self.context = context
     self.records = []
     self.constraints = []
+    
+  def checkstringescape(self, t, v):
+    return v if not v or not 'string' in t else v.replace('\\n', '\n').replace('\,', '\0').replace('\\' + self.context.objseparator, '\a')
+  
+  def stringescape(self, s):
+    return s.replace('\0', ',').replace('\a', self.context.objseparator)
   
   def gettype(self, type_):
     if type_[-2] == '[' and  type_[-1] == ']':
@@ -237,7 +237,7 @@ class Exporter:
       
   def buildobjexpress(self, parent, type_, name, value, isschema):
     obj = collections.OrderedDict()
-    fieldnamestypes = type_.strip('{}').split(':')
+    fieldnamestypes = type_.strip('{}').split(self.context.objseparator)
     
     if isschema:
       for i in range(0, len(fieldnamestypes)):
@@ -245,7 +245,7 @@ class Exporter:
         self.buildexpress(obj, fieldtype, fieldname, None, isschema)
       obj = getscemainfo(obj, value)
     else:
-      fieldValues = value.strip('{}').split(':')
+      fieldValues = value.strip('{}').split(self.context.objseparator)
       for i in range(0, len(fieldnamestypes)):
         if i < len(fieldValues):
           fieldtype, fieldname = splitspace(fieldnamestypes[i])
@@ -270,9 +270,9 @@ class Exporter:
           try:
             value = str(int(float(value)))
           except ValueError:
-            value = stringescape(str(value))
+            value = self.stringescape(str(value))
         else:            
-          value = stringescape(str(value))
+          value = self.stringescape(str(value))
       elif typename == 'bool':
         try:
           value = int(float(value))
@@ -449,7 +449,7 @@ class Exporter:
                 value = value.lstrip()[skiptokenindex:]
                 
               if type_ and name and value:
-                self.buildexpress(item, type_, name, checkstringescape(type_, value))  
+                self.buildexpress(item, type_, name, self.checkstringescape(type_, value))  
             spacerowcount = 0
                 
           if item:
@@ -497,7 +497,7 @@ class Exporter:
             if self.context.codegenerator:
               self.buildexpress(schemaobj, type_, name, description, True)
             if value:    
-              self.buildexpress(obj, type_, name, checkstringescape(type_, value))
+              self.buildexpress(obj, type_, name, self.checkstringescape(type_, value))
           spacerowcount = 0    
               
     except Exception as e:
@@ -605,6 +605,7 @@ if __name__ == '__main__':
     Options
     -s      ：sign, controls whether the column is exported, defalut all export
     -t      : suffix, export file suffix
+    -r      : the separator of object field, default is ; you can use it to change
     -c      : a file path, save the excel structure to json
               the external program uses this file to automatically generate the read code
     -h      : print this help message and exit
@@ -612,7 +613,7 @@ if __name__ == '__main__':
     https://github.com/yanghuan/proton'''
   
   print('argv:' , sys.argv)
-  opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:c:h')
+  opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:r:c:h')
 
   context = Context()
   context.path = None
@@ -620,6 +621,7 @@ if __name__ == '__main__':
   context.format = 'json'
   context.sign = None
   context.extension = None
+  context.objseparator = ';'
   context.codegenerator = None
 
   for op,v in opst:
@@ -633,6 +635,8 @@ if __name__ == '__main__':
       context.sign = v 
     elif op == '-t':
       context.extension = v
+    elif op == '-r':
+      context.objseparator = v
     elif op == '-c':
       context.codegenerator = v    
     elif op == '-h':

@@ -25,6 +25,7 @@ Arguments
 Options
 -s      ：sign, controls whether the column is exported, defalut all export
 -t      : suffix, export file suffix
+-r      : the separator of object field, default is ; you can use it to change
 -c      : a file path, save the excel structure to json, 
           the external program uses this file to automatically generate the read code      
 -h      : print this help message and exit
@@ -64,6 +65,7 @@ Arguments
 Options
 -s      ：sign, controls whether the column is exported, defalut all export
 -t      : suffix, export file suffix
+-r      : the separator of object field, default is ; you can use it to change
 -c      : a file path, save the excel structure to json, 
           the external program uses this file to automatically generate the read code      
 -h      : print this help message and exit
