@@ -210,10 +210,10 @@ class Exporter:
       return 'list'
     if type_[0] == '{' and type_[-1] == '}':
       return 'obj'
-    if type_ in ('int', 'double', 'string', 'bool'):
+    if type_ in ('int', 'double', 'string', 'bool', 'long', 'float'):
       return type_
     
-    p = re.search('(int|string)[' + string.whitespace + ']*\((\S+)\.(\S+)\)', type_)
+    p = re.search('(int|string|long)[' + string.whitespace + ']*\((\S+)\.(\S+)\)', type_)
     if p:
       type_ = BindType(p.group(1))
       type_.mark = p.group(2)
@@ -261,9 +261,9 @@ class Exporter:
       if v.isspace() and typename != 'string':
         return
         
-      if typename == 'int':
+      if typename == 'int' or typename == 'long':
         value = int(float(value))
-      elif typename == 'double':
+      elif typename == 'double' or typename == 'float':
         value = float(value)   
       elif typename == 'string':
         if value.endswith('.0'):          # may read is like "123.0"
