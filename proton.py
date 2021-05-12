@@ -27,6 +27,8 @@ import codecs
 import getopt
 import re
 import json
+import traceback
+import multiprocessing
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom as minidom
 import sxl
@@ -160,10 +162,6 @@ def toycl(obj, indent = 0):
       yield newline(indent)  
       yield '}'     
 
-def exportexcel(context):
-  Exporter(context).export()
-  print("export finsish successful!!!")
-    
 class BindType:
   def __init__(self, type_):
     self.typename = type_
@@ -197,7 +195,6 @@ class Exporter:
   def __init__(self, context):
     self.context = context
     self.records = []
-    self.constraints = []
     
   def checkstringescape(self, t, v):
     return v if not v or not 'string' in t else v.replace('\\n', '\n').replace('\,', '\0').replace('\\' + self.context.objseparator, '\a')
@@ -286,11 +283,8 @@ class Exporter:
           else:
             raise ValueError('%s is a illegal bool value' % value)
             
-    fillvalue(parent, name, value, isschema)   
-    
-    if not isschema and isinstance(typename, BindType):
-      self.addconstraint(typename.mark, typename.field, (type_, name, value))
-        
+    fillvalue(parent, name, value, isschema)
+
   def buildexpress(self, parent, type_, name, value, isschema = False):
     typename = self.gettype(type_)
     if typename == 'list':
@@ -303,74 +297,67 @@ class Exporter:
   def getrootname(self, exportmark, isitem):
     return exportmark + 's' + (self.context.extension or '') if isitem else exportmark + (self.context.extension or '')
 
-  def export(self):
-    paths = re.split(r'[,;|]+', context.path.strip())
+  def export(self, path):
+    self.path = path
+    data = sxl.Workbook(self.path)
+    cout = None
 
-    for self.path in paths:
-      if not self.path:
-        continue
-      
-      self.checkpath(self.path)
-      data = sxl.Workbook(self.path)
-      cout = None
-      for sheetname in [i for i in data.sheets if type(i) is str]:
-        self.sheetname = sheetname
-        exportmark = getexportmark(sheetname)
-        if exportmark:
-          sheet = data.sheets[sheetname]
-          coutmark = sheetname.endswith('<<')
-          configtitleinfo = self.getconfigsheetfinfo(sheet)
-          if not configtitleinfo:
-            root = self.getrootname(exportmark, not coutmark)
-            item = exportmark
-          else:
-            root = self.getrootname(exportmark, False)
-            item = None
-            
-          if not cout:  
-            self.checksheetname(self.path, sheetname, root)
-            exportfile = gerexportfilename(root, self.context.format, self.context.folder)
-            
-            if isoutofdate(self.path, exportfile):
-              if item:
-                exportobj = self.exportitemsheet(sheet)
-              else:
-                exportobj = self.exportconfigsheet(sheet, configtitleinfo)
-            
-              if coutmark:
-                if not item:
-                  cout = exportobj
-                else:
-                  cout = (collections.OrderedDict(), collections.OrderedDict())
-                  cout[0][item + 's'] = [[exportobj[0]]]
-                  item = None
-                  exportobj = cout
-                  obj = exportobj[1]
-                  if obj:
-                    cout[1][item + 's'] = obj
-                    
-              self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
-            else:
-              self.addrecord(self.path, sheet, exportfile, root, item, None, exportmark)
-              print('%s is not changed' % (self.path))
-              break
-          else:
+    for sheetname in [i for i in data.sheets if type(i) is str]:
+      self.sheetname = sheetname
+      exportmark = getexportmark(sheetname)
+      if exportmark:
+        sheet = data.sheets[sheetname]
+        coutmark = sheetname.endswith('<<')
+        configtitleinfo = self.getconfigsheetfinfo(sheet)
+        if not configtitleinfo:
+          root = self.getrootname(exportmark, not coutmark)
+          item = exportmark
+        else:
+          root = self.getrootname(exportmark, False)
+          item = None
+          
+        if not cout:  
+          self.checksheetname(self.path, sheetname, root)
+          exportfile = gerexportfilename(root, self.context.format, self.context.folder)
+          
+          if isoutofdate(self.path, exportfile):
             if item:
               exportobj = self.exportitemsheet(sheet)
-              cout[0][item + 's'] = [[exportobj[0]]]
-              obj = exportobj[1]
-              if obj:
-                cout[1][item + 's'] = obj
             else:
               exportobj = self.exportconfigsheet(sheet, configtitleinfo)
-              cout[0].update(exportobj[0])   
-              obj = exportobj[1]
-              if obj:
-                cout[1].update(obj)
-                
-    self.checkconstraint()
-    self.saves()                
-    
+          
+            if coutmark:
+              if not item:
+                cout = exportobj
+              else:
+                cout = (collections.OrderedDict(), collections.OrderedDict())
+                cout[0][item + 's'] = [[exportobj[0]]]
+                item = None
+                exportobj = cout
+                obj = exportobj[1]
+                if obj:
+                  cout[1][item + 's'] = obj
+                  
+            self.records.append(Record(self.path, sheet, exportfile, root, item, exportobj, exportmark))
+          else:
+            print('%s is not changed' % (self.path))
+            break
+        else:
+          if item:
+            exportobj = self.exportitemsheet(sheet)
+            cout[0][item + 's'] = [[exportobj[0]]]
+            obj = exportobj[1]
+            if obj:
+              cout[1][item + 's'] = obj
+          else:
+            exportobj = self.exportconfigsheet(sheet, configtitleinfo)
+            cout[0].update(exportobj[0])   
+            obj = exportobj[1]
+            if obj:
+              cout[1].update(obj)
+              
+    return self.saves()
+
   def getconfigsheetfinfo(self, sheet):
     titles = sheet.head(1)[0]
     
@@ -514,19 +501,13 @@ class Exporter:
   def saves(self):
     schemas = []
     for r in self.records:
-        if r.obj:
-          self.save(r)
-          
-          if self.context.codegenerator:        # has code generator
-            schemas.append({ 'exportfile' : r.exportfile, 'root' : r.root, 'item' : r.item or r.exportmark, 'schema' : r.schema })
-    
-    if schemas and self.context.codegenerator:
-      schemasjson = json.dumps(schemas, ensure_ascii = False, indent = 2)
-      dir = os.path.dirname(self.context.codegenerator)
-      if dir and not os.path.isdir(dir):
-        os.makedirs(dir)
-      with codecs.open(self.context.codegenerator, 'w', 'utf-8') as f:
-        f.write(schemasjson)
+      if r.obj:
+        self.save(r)
+
+        if self.context.codegenerator:        # has code generator
+          schemas.append({ 'path': r.path, 'exportfile' : r.exportfile, 'root' : r.root, 'item' : r.item or r.exportmark, 'schema' : r.schema })
+
+    return schemas
                 
   def save(self, record):
     if not record.obj:
@@ -560,65 +541,95 @@ class Exporter:
       with codecs.open(record.exportfile, 'w', 'utf-8') as f:
         f.write(yclstr)
       print('save %s from %s in %s' % (record.exportfile, record.sheet.name, record.path))
-
-  def addrecord(self, path, sheet, exportfile, root, item, obj, exportmark):
-    r = Record(path, sheet, exportfile, root, item, obj, exportmark)
-    self.records.append(r)
-      
+  
   def checksheetname(self, path, sheetname, root):
     r = next((r for r in self.records if r.root == root), False)
     if r:
       raise ValueError('%s in %s is already defined in %s' % (root, path, r.path))
-      
-  def checkpath(self, path):
-    r = next((r for r in self.records if r.path == path), False)
-    if r:
-      raise ValueError('%s is already export' % path)
-            
-  def addconstraint(self, mark, field, valueinfo):
-    c = Constraint(mark, field)
-    c.valueinfo = valueinfo
-    c.path = self.path
-    c.sheetname = self.sheetname
-    c.rowindex = self.rowindex
-    c.colindex = self.colindex
-    self.constraints.append(c)
+     
+def export(context, path):
+  try:
+    return Exporter(context).export(path)
+  except Exception as e:  
+    return traceback.format_exc()
 
-  def checkconstraint(self):
-    for c in self.constraints:
-      r = next((r for r in self.records if r.item == c.mark), False)
-      if not r:
-        raise ValueError('%s(mark) not found ,%s has a constraint %s error in %d row %d column in %s' % (c.mark, c.sheetname, c.valueinfo, c.rowindex + 1, c.colindex + 1, c.path))
+def exportpack(args):
+  return export(args[0], args[1])
+
+def exportfiles(context):
+  paths = []
+  for path in re.split(r'[,;|]+', context.path.strip()):
+    if path:
+      if not os.path.isfile(path):
+        raise ValueError('%s is not exists' % path)
+      elif path in paths:
+        raise ValueError('%s is already has' % path)    
+      paths.append(path)
+
+  errors = []
+  schemas = []
+
+  def append(result):
+    if type(result) is str:
+      errors.append(result)
+    else:   
+      schemas.extend(result)
       
-      if not r.obj:  # is not change so not load
-        exportobj = self.exportitemsheet(r.sheet)
-        r.setobj(exportobj)
-      
-      v = c.valueinfo[2]    
-      i = next((i for i in r.obj if i[c.field] == v), False)    
-      if not i:
-        raise ValueError('%s(field) %s not found ,%s has a constraint %s error in %d row %d column in %s' % (c.field, v, c.sheetname, c.valueinfo, c.rowindex + 1, c.colindex + 1, c.path))
-    
+  if context.multiprocessescount is None or context.multiprocessescount > 1:
+    with multiprocessing.Pool(context.multiprocessescount) as p:
+      for i in p.map(exportpack, [(context, x) for x in paths]):
+        append(i)
+  else:
+    for path in paths:
+      result = export(context, path)
+      append(result)
+
+  if schemas:
+    if context.codegenerator:
+      schemasjson = json.dumps(schemas, ensure_ascii = False, indent = 2)
+      dir = os.path.dirname(context.codegenerator)
+      if dir and not os.path.isdir(dir):
+        os.makedirs(dir)
+      with codecs.open(context.codegenerator, 'w', 'utf-8') as f:
+        f.write(schemasjson)
+
+    exports = []
+    for schema in schemas:
+      exportfile = schema['exportfile']
+      r = next((r for r in exports if r['exportfile'] == exportfile), False)
+      if r:
+        errors.append('%s in %s is already defined in %s' % (schema['root'], schema['path'], r['path']))
+        os.remove(exportfile)
+      else:
+        exports.append(schema)
+
+  if errors:
+    print('\n\n'.join(errors))
+    sys.exit(-1)
+
+  print("export finsish successful!!!")
+
+class Context:
+  '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
+  Arguments
+  -p      : input excel files, use , or ; or space to separate
+  -f      : out folder
+  -e      : format, json or xml or lua or ycl
+
+  Options
+  -s      ：sign, controls whether the column is exported, defalut all export
+  -t      : suffix, export file suffix
+  -r      : the separator of object field, default is ; you can use it to change
+  -m      : use the count of multiprocesses to export, default is cpu count
+  -c      : a file path, save the excel structure to json
+            the external program uses this file to automatically generate the read code
+  -h      : print this help message and exit
+
+  https://github.com/yanghuan/proton'''
+
 if __name__ == '__main__':
-  class Context:
-    '''usage python proton.py [-p filelist] [-f outfolder] [-e format]
-    Arguments
-    -p      : input excel files, use , or ; or space to separate
-    -f      : out folder
-    -e      : format, json or xml or lua or ycl
-
-    Options
-    -s      ：sign, controls whether the column is exported, defalut all export
-    -t      : suffix, export file suffix
-    -r      : the separator of object field, default is ; you can use it to change
-    -c      : a file path, save the excel structure to json
-              the external program uses this file to automatically generate the read code
-    -h      : print this help message and exit
-    
-    https://github.com/yanghuan/proton'''
-  
   print('argv:' , sys.argv)
-  opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:r:c:h')
+  opst, args = getopt.getopt(sys.argv[1:], 'p:f:e:s:t:r:m:c:h')
 
   context = Context()
   context.path = None
@@ -628,6 +639,7 @@ if __name__ == '__main__':
   context.extension = None
   context.objseparator = ';'
   context.codegenerator = None
+  context.multiprocessescount = None
 
   for op, v in opst:
     if op == '-p':
@@ -642,6 +654,8 @@ if __name__ == '__main__':
       context.extension = v
     elif op == '-r':
       context.objseparator = v
+    elif op == '-m':
+      context.multiprocessescount = int(v) if v is not None else None
     elif op == '-c':
       context.codegenerator = v    
     elif op == '-h':
@@ -651,5 +665,5 @@ if __name__ == '__main__':
   if not context.path:
     print(Context.__doc__)
     sys.exit(2)
-    
-  exportexcel(context)
+
+  exportfiles(context)
