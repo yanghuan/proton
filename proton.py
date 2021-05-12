@@ -1,6 +1,6 @@
 #encoding=utf-8
 '''
-Copyright 2016 YANG Huan (sy.yanghuan@gmail.com)
+Copyright YANG Huan (sy.yanghuan@gmail.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import re
 import json
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom as minidom
-import xlrd
+import sxl
 
 def fillvalue(parent, name, value, isschema):
   if isinstance(parent, list):
@@ -40,10 +40,10 @@ def fillvalue(parent, name, value, isschema):
     parent[name] = value
     
 def getindex(infos, name):
-  for index, item in enumerate(infos):
-    if item == name:
-      return index
-  return -1
+  return next((i for i, j in enumerate(infos) if j == name), -1)
+  
+def getcellvalue(value):
+  return str(value) if value is not None else ''
 
 def getscemainfo(typename, description):
   if isinstance(typename, BindType):
@@ -258,7 +258,7 @@ class Exporter:
     if isschema:
       value = getscemainfo(typename, value)
     else:
-      if v.isspace() and typename != 'string':
+      if typename != 'string' and value.isspace():
         return
         
       if typename == 'int' or typename == 'long':
@@ -283,8 +283,9 @@ class Exporter:
             value = False
           elif value in ('true', 'yes', 'on'):
             value = True
-          else:    
-            raise ValueError('%s is a illegal bool value' % value) 
+          else:
+            raise ValueError('%s is a illegal bool value' % value)
+            
     fillvalue(parent, name, value, isschema)   
     
     if not isschema and isinstance(typename, BindType):
@@ -310,13 +311,14 @@ class Exporter:
         continue
       
       self.checkpath(self.path)
-      data = xlrd.open_workbook(self.path)
+      data = sxl.Workbook(self.path)
       cout = None
-      for sheet in data.sheets():
-        exportmark = getexportmark(sheet.name)
-        self.sheetname = sheet.name
+      for sheetname in [i for i in data.sheets if type(i) is str]:
+        self.sheetname = sheetname
+        exportmark = getexportmark(sheetname)
         if exportmark:
-          coutmark = sheet.name.endswith('<<')
+          sheet = data.sheets[sheetname]
+          coutmark = sheetname.endswith('<<')
           configtitleinfo = self.getconfigsheetfinfo(sheet)
           if not configtitleinfo:
             root = self.getrootname(exportmark, not coutmark)
@@ -324,36 +326,33 @@ class Exporter:
           else:
             root = self.getrootname(exportmark, False)
             item = None
-          
-          if not cout:
+            
+          if not cout:  
+            self.checksheetname(self.path, sheetname, root)
             exportfile = gerexportfilename(root, self.context.format, self.context.folder)
-            self.checksheetname(self.path, sheet.name, root)
-        
-            exportobj = None
-            nochanged = False
+            
             if isoutofdate(self.path, exportfile):
               if item:
                 exportobj = self.exportitemsheet(sheet)
               else:
                 exportobj = self.exportconfigsheet(sheet, configtitleinfo)
+            
+              if coutmark:
+                if not item:
+                  cout = exportobj
+                else:
+                  cout = (collections.OrderedDict(), collections.OrderedDict())
+                  cout[0][item + 's'] = [[exportobj[0]]]
+                  item = None
+                  exportobj = cout
+                  obj = exportobj[1]
+                  if obj:
+                    cout[1][item + 's'] = obj
+                    
+              self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)    
             else:
-              nochanged = True
-              print(exportfile + ' is not change, so skip!')
-
-            if coutmark:
-              if not item:
-                cout = exportobj
-              else:
-                cout = (collections.OrderedDict(), collections.OrderedDict())
-                cout[0][item + 's'] = [[exportobj[0]]]
-                item = None
-                exportobj = cout
-                obj = exportobj[1]
-                if obj:
-                  cout[1][item + 's'] = obj
-                  
-            self.addrecord(self.path, sheet, exportfile, root, item, exportobj, exportmark)
-            if coutmark and nochanged:
+              self.addrecord(self.path, sheet, exportfile, root, item, None, exportmark)
+              print('%s is not changed' % (self.path))
               break
           else:
             if item:
@@ -373,7 +372,7 @@ class Exporter:
     self.saves()                
     
   def getconfigsheetfinfo(self, sheet):
-    titles = sheet.row_values(0)
+    titles = sheet.head(1)[0]
     
     nameindex = getindex(titles, self.configsheettitles[0])
     valueindex = getindex(titles, self.configsheettitles[1])
@@ -385,28 +384,30 @@ class Exporter:
       return (nameindex, valueindex, typeindex, signindex, descriptionindex)
     else:
       return None
-        
+      
   def exportitemsheet(self, sheet):
-    descriptions = sheet.row_values(0)
-    types = sheet.row_values(1)
-    names = sheet.row_values(2)
-    signs = sheet.row_values(3)
+    rows = iter(sheet.rows)
+    descriptions = next(rows)
+    types = next(rows)
+    names = next(rows)
+    signs = next(rows)
     
+    ncols = len(types)
     titleinfos = []
     schemaobj = collections.OrderedDict()
     
     try:
-      for colindex in range(sheet.ncols):
-        type_ = str(types[colindex]).strip()
-        name = str(names[colindex]).strip()
-        signmatch = issignmatch(self.context.sign, str(signs[colindex]).strip())
+      for colindex in range(ncols):
+        type_ = getcellvalue(types[colindex]).strip()
+        name = getcellvalue(names[colindex]).strip()
+        signmatch = issignmatch(self.context.sign, getcellvalue(signs[colindex]).strip())        
         titleinfos.append((type_, name, signmatch))
         
         if self.context.codegenerator:
           if type_ and name and signmatch:
             self.buildexpress(schemaobj, type_, name, descriptions[colindex], True)
-                    
-    except Exception as e: 
+            
+    except Exception as e:
       e.args += ('%s has a title error, %s at %d column in %s' % (sheet.name, (type_, name), colindex + 1, self.path) , '')
       raise e
       
@@ -415,12 +416,12 @@ class Exporter:
     if hasexport:
       try:
         spacerowcount = 0
-        
-        for self.rowindex in range(4, sheet.nrows):
-          row = sheet.row_values(self.rowindex)
-          item = collections.OrderedDict()
+        self.rowindex = 3
+        for row in rows:
+          self.rowindex += 1
           
-          firsttext = str(row[0]).strip()
+          item = collections.OrderedDict()
+          firsttext = getcellvalue(row[0]).strip()
           if not firsttext:
             spacerowcount += 1
             if spacerowcount >= self.spacemaxrowcount:      # if space row is than max count, skil follow rows     
@@ -428,8 +429,8 @@ class Exporter:
           
           if not firsttext or firsttext[0] == '#':    # current line skip
             continue
-             
-          skiptokenindex = None   
+            
+          skiptokenindex = None
           if firsttext[0] == '!':
             nextpos = firsttext.find('!', 1)
             if nextpos >= 2:
@@ -438,29 +439,34 @@ class Exporter:
                 continue
               else:
                 skiptokenindex = len(signtoken) + 2
-                 
-          for self.colindex in range(sheet.ncols):
+          
+          for self.colindex in range(ncols):
             signmatch = titleinfos[self.colindex][2]
             if signmatch:
               type_ = titleinfos[self.colindex][0]
               name = titleinfos[self.colindex][1]
-              value = str(row[self.colindex])
+              value = getcellvalue(row[self.colindex])
+              
               if skiptokenindex and self.colindex == 0:
                 value = value.lstrip()[skiptokenindex:]
                 
               if type_ and name and value:
                 self.buildexpress(item, type_, name, self.checkstringescape(type_, value))  
             spacerowcount = 0
-                
+            
           if item:
-            list_.append(item)
+            list_.append(item) 
+          
       except Exception as e:        
-          e.args += ('%s has a error in %d row %d column in %s' % (sheet.name, self.rowindex + 1, self.colindex + 1, self.path) , '')
+          e.args += ('%s has a error in %d row %d(%s) column in %s' % (sheet.name, self.rowindex + 1, self.colindex + 1, name, self.path) , '')
           raise e
     
     return (schemaobj, list_)
         
   def exportconfigsheet(self, sheet, titleindexs):
+    rows = iter(sheet.rows)
+    next(rows)
+  
     nameindex = titleindexs[0]
     valueindex = titleindexs[1]
     typeindex = titleindexs[2]
@@ -472,17 +478,16 @@ class Exporter:
     
     try:
       spacerowcount = 0
-      
-      for self.rowindex in range(1, sheet.nrows):
-        row = sheet.row_values(self.rowindex) 
-    
-        name = str(row[nameindex]).strip()
-        value = str(row[valueindex])
-        type_ = str(row[typeindex]).strip()
-        description = str(row[descriptionindex]).strip()
+      self.rowindex = 0
+      for row in rows:
+        self.rowindex += 1
+        name = getcellvalue(row[nameindex]).strip()
+        value = getcellvalue(row[valueindex])
+        type_ = getcellvalue(row[typeindex]).strip()
+        description = getcellvalue(row[descriptionindex]).strip()
         
         if signindex > 0:
-          sign = str(row[signindex]).strip()
+          sign = getcellvalue(row[signindex]).strip()
           if not issignmatch(self.context.sign, sign):
             continue
           
@@ -499,7 +504,7 @@ class Exporter:
             if value:    
               self.buildexpress(obj, type_, name, self.checkstringescape(type_, value))
           spacerowcount = 0    
-              
+               
     except Exception as e:
       e.args += ('%s has a error in %d row (%s, %s, %s) in %s' % (sheet.name, self.rowindex + 1, type_, name, value, self.path) , '')
       raise e
@@ -624,7 +629,7 @@ if __name__ == '__main__':
   context.objseparator = ';'
   context.codegenerator = None
 
-  for op,v in opst:
+  for op, v in opst:
     if op == '-p':
       context.path = v
     elif op == '-f':
